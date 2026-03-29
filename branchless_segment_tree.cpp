@@ -1,7 +1,3 @@
-// https://leetcode.com/problems/fruits-into-baskets-iii/submissions/1944415946
-// ^ there was no noticeable performance btwn. find_left vs. find_right
-// which suggests that I have implemented find_right correctly
-// although, I should still keep testing to verify that is completely true
 #include <immintrin.h>
 
 // #pragma GCC optimize("Ofast,unroll-loops,inline")
