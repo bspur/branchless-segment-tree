@@ -1,2 +1,2 @@
 # Branchless Segment Trees
-aggressively optimized iterative segment trees
+aggressively optimized generic iterative segment trees
