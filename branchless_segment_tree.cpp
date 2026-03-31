@@ -1,6 +1,7 @@
 #include <immintrin.h>
 
-// #pragma GCC optimize("Ofast,unroll-loops,inline")
+#pragma GCC optimize("Ofast,unroll-loops,inline")
+
 
 #ifdef __clang__
     // #pragma GCC target() doesn't work for Clang for templates
@@ -323,7 +324,8 @@ public:
     void init() { init_(0); }
     void init(uint N) {
         init_(N);
-        fill_n(seg.begin(), size + n, E());
+        fill_n(seg.begin() + size, n, E());
+        build_tree<true>();
     }
 
     void init(uint N, T x) {
@@ -415,15 +417,21 @@ public:
         seg.reserve(size << 1);
     }
 
+    template <bool NoCombine = false>
     [[gnu::always_inline]]
     inline void build_tree() {
+        auto update_node = [&](uint i, uint sh, uint sz) {
+            seg[i] = NoCombine
+                ? E()
+                : COMBINE(seg[i<<1], seg[i<<1|1], (i << sh) + sz - size, sz, sz);
+        };
         if constexpr (N4) {
             // only sets 2N + log(N) nodes
             uint l = size, r = size + n - 1, sz = 1, sh = 1;
             if (!(r&1)) seg[r+1] = E();
             for (l >>= 1, r >>= 1; r; l >>= 1, r >>= 1, sz <<= 1, sh++) {
                 for (uint i = l; i <= r; i++) {
-                    seg[i] = COMBINE(seg[i<<1], seg[i<<1|1], (i << sh) + sz - size, sz, sz);
+                    update_node(i, sh, sz);
                 }
                 if (!(r&1)) seg[r+1] = E();
             }
@@ -432,7 +440,7 @@ public:
             for (; I >>= 1; sz <<= 1, sh++) {
                 while (i > I) {
                     i--;
-                    seg[i] = COMBINE(seg[i<<1], seg[i<<1|1], (i << sh) + sz - size, sz, sz);
+                    update_node(i, sh, sz);
                 }
             }
         }
@@ -1000,6 +1008,7 @@ public:
         return -1;
     }
 };
+
 
 
 #ifdef __clang__
