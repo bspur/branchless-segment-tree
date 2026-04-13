@@ -282,10 +282,10 @@ private:
                 std::forward<decltype(tail)>(tail)...
             );
         };
-        if constexpr (is_invocable_r_v<T, OC, T, T>)                  return dispatch(); 
-        else if constexpr (is_invocable_r_v<T, OC, T, T, uint>)       return dispatch(idx); 
-        else if constexpr (is_invocable_r_v<T, OC, T, T, uint, uint>) return dispatch(szl, szr); 
-        else                                                          return dispatch(idx, szl, szr); 
+        if constexpr (is_invocable_r_v<T, OC, T, T>)                  return dispatch();
+        else if constexpr (is_invocable_r_v<T, OC, T, T, uint>)       return dispatch(idx);
+        else if constexpr (is_invocable_r_v<T, OC, T, T, uint, uint>) return dispatch(szl, szr);
+        else                                                          return dispatch(idx, szl, szr);
     };
 
     // https://gemini.google.com/app/5e9f9dc6ed77a6bd
@@ -734,8 +734,9 @@ public:
         if constexpr (N4) {
             if constexpr (RT == ANY) {
                 l += size - 1, r += size;
-                uint anc_mask = (1 << (bit_width(l ^ r) - 1)) - 1;
-                hl = ~l & anc_mask, hr = r & anc_mask;
+                uint count = bit_width(l ^ r) - 1;
+                hl = _bzhi_u32(~l, count);
+                hr = _bzhi_u32(r, count);
             } else if constexpr (RT == PREFIX) {
                 hl = 0, hr = r;
                 r += size;
@@ -743,8 +744,9 @@ public:
                 // (l, r]
                 l += size - 1, r += size - 1;
                 // calculations needed to reduce working set of memory to 2N + log(N)
-                uint anc_mask = (1 << (bit_width(l ^ r))) - 1;
-                hl = ~l & anc_mask, hr = 0;
+                uint count = bit_width(l ^ r);
+                hl = _bzhi_u32(~l, count);
+                hr = 0;
             } else { // RT == ALL
                 static_assert(RT != ALL, "please use fast-tracks for N4 + ALL cases :)");
             }
@@ -755,8 +757,9 @@ public:
                 hl = k - n, hr = r - k;
             } else { // RT == PREFIX / SUFFIX / ANY
                 l += n - 1, r += n;
-                uint anc_mask = (1 << (bit_width(l ^ r) - 1)) - 1;
-                hl = ~l & anc_mask, hr = r & anc_mask;
+                uint count = bit_width(l ^ r) - 1;
+                hl = _bzhi_u32(~l, count);
+                hr = _bzhi_u32(r, count);
             }
         }
     }
