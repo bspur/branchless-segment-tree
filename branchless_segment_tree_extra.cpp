@@ -837,6 +837,7 @@ public:
             if (okay(ACC)) {
                 return dive_left_acc<1>((r >> i) - 1, i, acc, 0, okay, comb, L0, L);
             }
+            acc = ACC;
             L += m;
         }
         return -1;
@@ -956,6 +957,7 @@ public:
             if (okay(ACC)) {
                 return dive_right_acc<1>((l >> i) + 1, i, acc, 0, okay, comb, R0, R);
             }
+            acc = ACC;
             R -= m;
         }
         return -1;
